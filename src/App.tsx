@@ -393,7 +393,7 @@ export default function App() {
                 爆速しりとり
               </h1>
               <p className="text-slate-400 text-sm max-w-xs mx-auto leading-relaxed">
-                制限時間30秒からスタート！しりとりを重ねるごとに制限時間が短くなる過酷なしりとりアクション。
+                制限時間30秒からスタート！しりとりを重ねるごとに制限時間が短くなる。
               </p>
             </div>
 
