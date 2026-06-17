@@ -1,0 +1,6 @@
+{
+  "name": "爆速しりとり",
+  "description": "制限時間内にタイピングで繋ぎ続ける、高速しりとりアクションゲーム！",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
