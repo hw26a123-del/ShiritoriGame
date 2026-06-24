@@ -681,7 +681,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
       
       {/* 1. Header (Always styled nicely for current state) */}
-      <header className="px-6 py-4 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md flex items-center justify-between sticky top-0 z-10">
+      <header className="px-6 py-4 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md flex items-center justify-between sticky top-0 z-10 shrink-0">
         <div className="flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-indigo-400" />
           <span id="header_title" className="font-bold tracking-wider text-slate-200 font-mono">
@@ -1024,7 +1024,7 @@ export default function App() {
       </main>
 
       {/* 3. Timer bottom progress bar (Only while playing status) */}
-      <footer className="w-full h-2.5 bg-slate-950 relative overflow-hidden" id="bottom_progress_status_bar">
+      <footer className="w-full h-2.5 bg-slate-950 relative overflow-hidden shrink-0" id="bottom_progress_status_bar">
         {status === "playing" && (
           <div
             className={`h-full transition-[width] duration-100 ease-linear ${
