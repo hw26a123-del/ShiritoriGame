@@ -76,7 +76,7 @@ const HIRAGANA_TO_ROMAJI_MAP: { [key: string]: string } = {
   "ざ": "za", "じ": "ji", "ず": "zu", "ぜ": "ze", "ぞ": "zo",
   "だ": "da", "ぢ": "di", "づ": "du", "で": "de", "ど": "do",
   "ば": "ba", "び": "bi", "ぶ": "bu", "べ": "be", "ぼ": "bo",
-  "ぱ": "pa", "ぴ": "pi", "pu": "pu", "ぺ": "pe", "ぽ": "po",
+  "ぱ": "pa", "ぴ": "pi", "ぷ": "pu", "ぺ": "pe", "ぽ": "po",
   "きゃ": "kya", "きゅ": "kyu", "きょ": "kyo",
   "ぎゃ": "gya", "ぎゅ": "gyu", "ぎょ": "gyo",
   "しゃ": "sha", "しゅ": "shu", "しょ": "sho",
@@ -325,6 +325,54 @@ export default function App() {
     return smallToBig[char] || char;
   };
 
+  // Helper: Check if input romaji prefix matches target romaji, considering equivalent spellings (e.g. fu/hu, shi/si, tsu/tu)
+  const matchRomajiPrefix = (input: string, target: string): boolean => {
+    if (input.startsWith(target)) return true;
+
+    // Mapping of equivalent spellings
+    const equivalents: { [key: string]: string[] } = {
+      "fu": ["fu", "hu"],
+      "hu": ["fu", "hu"],
+      "shi": ["shi", "si"],
+      "si": ["shi", "si"],
+      "chi": ["chi", "ti"],
+      "ti": ["chi", "ti"],
+      "tsu": ["tsu", "tu"],
+      "tu": ["tsu", "tu"],
+      "ji": ["ji", "zi"],
+      "zi": ["ji", "zi"],
+      "sha": ["sha", "sya"],
+      "sya": ["sha", "sya"],
+      "shu": ["shu", "syu"],
+      "syu": ["shu", "syu"],
+      "sho": ["sho", "syo"],
+      "syo": ["sho", "syo"],
+      "cha": ["cha", "tya"],
+      "tya": ["cha", "tya"],
+      "chu": ["chu", "tyu"],
+      "tyu": ["chu", "tyu"],
+      "cho": ["cho", "tyo"],
+      "tyo": ["cho", "tyo"],
+      "ja": ["ja", "zya"],
+      "zya": ["ja", "zya"],
+      "ju": ["ju", "zyu"],
+      "zyu": ["ju", "zyu"],
+      "jo": ["jo", "zyo"],
+      "zyo": ["jo", "zyo"],
+    };
+
+    const list = equivalents[target];
+    if (list) {
+      for (const eq of list) {
+        if (input.startsWith(eq)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+
   // Check connection between preceding word and next word
   const checkConnection = (prev: string, nextInputRomaji: string, nextInputHiragana: string): boolean => {
     // 1. Romaji token-based connection (resolves "kisha" sha -> "shatyou" shatyou mismatch)
@@ -335,7 +383,7 @@ export default function App() {
         const targetRomaji = prevTargetToken.romaji; // e.g. "sha", "go", "ko"
         
         // Check if player's romaji starts with the target romaji
-        if (nextInputRomaji.startsWith(targetRomaji)) {
+        if (matchRomajiPrefix(nextInputRomaji, targetRomaji)) {
           return true;
         }
         
@@ -345,7 +393,7 @@ export default function App() {
         if (lastChar !== baseChar) {
           const baseTokens = splitHiraganaToRomajiTokens(baseChar);
           const baseRomaji = baseTokens[0]?.romaji || "";
-          if (baseRomaji && nextInputRomaji.startsWith(baseRomaji)) {
+          if (baseRomaji && matchRomajiPrefix(nextInputRomaji, baseRomaji)) {
             return true;
           }
         }
@@ -600,7 +648,7 @@ export default function App() {
 
   // Timer Effect
   useEffect(() => {
-    if (status !== "playing" || isSystemThinking) return;
+    if (status !== "playing" || isSystemThinking || isChecking) return;
 
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
@@ -614,7 +662,7 @@ export default function App() {
     }, 100);
 
     return () => clearInterval(interval);
-  }, [status, maxTimer, currentWord, isSystemThinking]);
+  }, [status, maxTimer, currentWord, isSystemThinking, isChecking]);
 
   // Keep input focused automatically
   useEffect(() => {
@@ -678,7 +726,7 @@ export default function App() {
                 爆速しりとり
               </h1>
               <p className="text-slate-400 text-sm max-w-xs mx-auto leading-relaxed">
-                制限時間30秒からスタート！しりとりを重ねるごとに制限時間が短くなる。
+                制限時間10秒からスタート！<br />しりとりを重ねるごとに制限時間が短くなる。
               </p>
             </div>
 
@@ -979,7 +1027,7 @@ export default function App() {
       <footer className="w-full h-2.5 bg-slate-950 relative overflow-hidden" id="bottom_progress_status_bar">
         {status === "playing" && (
           <div
-            className={`h-full transition-all duration-100 ease-out ${
+            className={`h-full transition-[width] duration-100 ease-linear ${
               isTimeLow 
                 ? "bg-rose-500 shadow-[0_0_12px_rgba(239,68,68,0.5)]" 
                 : "bg-gradient-to-r from-indigo-500 to-indigo-600 shadow-[0_0_8px_rgba(99,102,241,0.25)]"
