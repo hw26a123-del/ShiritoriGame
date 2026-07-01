@@ -786,18 +786,20 @@ export default function App() {
 
             {/* Right Column: Help Info Card */}
             <div className="flex justify-center items-center">
-              <div className="text-xs text-slate-300 bg-slate-800/40 border border-slate-800 rounded-2xl p-6 shadow-xl w-full max-w-sm space-y-3">
-                <div className="flex items-center justify-center gap-1.5 text-indigo-400 font-semibold mb-2 text-sm">
-                  <HelpCircle className="w-4 h-4" />
+              <div className="text-sm text-slate-300 bg-slate-800/40 border border-slate-800 rounded-2xl p-8 shadow-xl w-full max-w-md space-y-5">
+                <div className="flex items-center justify-center gap-1.5 text-indigo-400 font-semibold mb-4 text-base">
+                  <HelpCircle className="w-5 h-5" />
                   <span>しりとりの特別ルール</span>
                 </div>
-                <div className="space-y-2 text-slate-300">
+                <div className="space-y-3.5 text-slate-300 leading-relaxed">
                   <p>・入力は「小文字のローマ字のみ」で行います</p>
                   <p>・最新の単語の「最後の赤字ローマ字」から繋げます</p>
                   <p>・複数の綴り（si/shi、xtu/ltuなど）すべてを許可</p>
-                  <p>・濁音から清音はOK、逆はNG (例：go ➔ koara ⭕ / ko ➔ go ❌)</p>
+                  <div className="border border-dashed border-rose-500/50 bg-rose-950/20 rounded-lg p-2.5 text-rose-400 font-semibold my-1">
+                    ・濁音から清音はOK、逆はNG (例：go ➔ koara ⭕ / ko ➔ go ❌)
+                  </div>
                   <p>・語尾の「ー」は1文字前を参照します。(例：rubi- ➔ bi)</p>
-                  <p className="text-rose-400 font-medium">※最後が「ん（n）」で終わった場合は即ゲームオーバー！</p>
+                  <p className="text-rose-400 font-semibold">※最後が「ん（n）」で終わった場合は即ゲームオーバー！</p>
                 </div>
               </div>
             </div>
