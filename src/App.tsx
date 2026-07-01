@@ -243,7 +243,17 @@ type GameStatus = "start" | "playing" | "gameover";
 
 export default function App() {
   // Game states
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [status, setStatus] = useState<GameStatus>("start");
+
+  // Detect mobile environment (smartphones and tablets, PCs are permitted)
+  useEffect(() => {
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    const isTouch = window.matchMedia("(pointer: coarse)").matches || "ontouchstart" in window;
+    const isMobileUA = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    setIsMobile(!!(isMobileUA || isTouch));
+  }, []);
+
   const [score, setScore] = useState<number>(0);
   const [finalScore, setFinalScore] = useState<number>(0);
   const [highScore, setHighScore] = useState<number>(() => {
@@ -677,6 +687,23 @@ export default function App() {
   const timerRatio = Math.max(0, Math.min(100, (timeLeft / maxTimer) * 100));
   const isTimeLow = timeLeft < 5;
 
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-center items-center px-6 py-12 text-center font-sans">
+        <div className="max-w-md w-full bg-slate-800/40 border border-rose-500/30 rounded-2xl p-8 shadow-xl space-y-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-rose-500/10 text-rose-400 mb-2">
+            <AlertCircle className="w-10 h-10" />
+          </div>
+          <h1 className="text-2xl font-bold text-white tracking-wide">PC専用ゲームです</h1>
+          <p className="text-slate-300 text-sm leading-relaxed">
+            このゲームはタイピング入力を使用するため、スマートフォンやタブレットなどのモバイル環境には対応していません。<br />
+            PC（デスクトップ）環境からアクセスしてください。
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
       
@@ -715,55 +742,64 @@ export default function App() {
       </header>
 
       {/* 2. Main Canvas Grid */}
-      <main className="flex-1 max-w-lg w-full mx-auto px-4 py-8 flex flex-col justify-center items-center">
+      <main className={`flex-1 w-full mx-auto px-4 py-8 flex flex-col justify-center items-center transition-all duration-300 ${
+        status === "start" ? "max-w-4xl" : "max-w-lg"
+      }`}>
         
         {/* START SCREEN STATUS */}
         {status === "start" && (
-          <div className="w-full flex flex-col items-center justify-center space-y-12 py-10" id="start_screen">
-            {/* Title Section (Upper Center of Screen) */}
-            <div className="text-center space-y-3">
-              <h1 id="app_title" className="text-5xl font-black tracking-tight text-white drop-shadow-md">
-                爆速しりとり
-              </h1>
-              <p className="text-slate-400 text-sm max-w-xs mx-auto leading-relaxed">
-                制限時間10秒からスタート！<br />しりとりを重ねるごとに制限時間が短くなる。
-              </p>
-            </div>
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center py-6" id="start_screen">
+            {/* Left Column: Title Section, Start Button, and High Score */}
+            <div className="flex flex-col items-center justify-center space-y-8 text-center">
+              {/* Title Section (Upper Center of Screen) */}
+              <div className="space-y-3">
+                <h1 id="app_title" className="text-5xl font-black tracking-tight text-white drop-shadow-md">
+                  爆速しりとり
+                </h1>
+                <p className="text-slate-400 text-sm max-w-xs mx-auto leading-relaxed">
+                  制限時間10秒からスタート！<br />しりとりを重ねるごとに制限時間が短くなる。
+                </p>
+              </div>
 
-            {/* Center Area holding Start Button and High Score */}
-            <div className="w-full max-w-sm bg-slate-800/40 border border-slate-800 rounded-2xl p-8 shadow-xl text-center space-y-6">
-              <button
-                onClick={startGame}
-                id="btn_start"
-                className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 active:scale-98 text-white font-bold tracking-widest text-lg transition-all duration-200 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/35 flex items-center justify-center gap-2 group cursor-pointer"
-              >
-                <Play className="w-5 h-5 fill-current group-hover:translate-x-0.5 transition-transform" />
-                ゲームを開始する
-              </button>
+              {/* Center Area holding Start Button and High Score */}
+              <div className="w-full max-w-sm bg-slate-800/40 border border-slate-800 rounded-2xl p-8 shadow-xl space-y-6">
+                <button
+                  onClick={startGame}
+                  id="btn_start"
+                  className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 active:scale-98 text-white font-bold tracking-widest text-lg transition-all duration-200 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/35 flex items-center justify-center gap-2 group cursor-pointer"
+                >
+                  <Play className="w-5 h-5 fill-current group-hover:translate-x-0.5 transition-transform" />
+                  ゲームを開始する
+                </button>
 
-              <div className="flex flex-col items-center justify-center space-y-1" id="high_score_display">
-                <span className="text-xs text-slate-500 uppercase tracking-widest font-mono">
-                  Personal Best Record
-                </span>
-                <div className="flex items-center gap-1.5 text-amber-400">
-                  <Award className="w-5 h-5 animate-bounce" />
-                  <span className="text-xl font-bold font-mono text-slate-200">{highScore}点</span>
+                <div className="flex flex-col items-center justify-center space-y-1" id="high_score_display">
+                  <span className="text-xs text-slate-500 uppercase tracking-widest font-mono">
+                    Personal Best Record
+                  </span>
+                  <div className="flex items-center gap-1.5 text-amber-400">
+                    <Award className="w-5 h-5 animate-bounce" />
+                    <span className="text-xl font-bold font-mono text-slate-200">{highScore}点</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Simple Help Info */}
-            <div className="text-xs text-slate-500 bg-slate-800/10 rounded-lg p-4 border border-slate-800/50 max-w-xs text-center space-y-1.5">
-              <div className="flex items-center justify-center gap-1.5 text-slate-400 font-semibold mb-1">
-                <HelpCircle className="w-3.5 h-3.5" />
-                <span>しりとりの特別ルール</span>
+            {/* Right Column: Help Info Card */}
+            <div className="flex justify-center items-center">
+              <div className="text-xs text-slate-300 bg-slate-800/40 border border-slate-800 rounded-2xl p-6 shadow-xl w-full max-w-sm space-y-3">
+                <div className="flex items-center justify-center gap-1.5 text-indigo-400 font-semibold mb-2 text-sm">
+                  <HelpCircle className="w-4 h-4" />
+                  <span>しりとりの特別ルール</span>
+                </div>
+                <div className="space-y-2 text-slate-300">
+                  <p>・入力は「小文字のローマ字のみ」で行います</p>
+                  <p>・最新の単語の「最後の赤字ローマ字」から繋げます</p>
+                  <p>・複数の綴り（si/shi、xtu/ltuなど）すべてを許可</p>
+                  <p>・濁音から清音はOK、逆はNG (例：go ➔ koara ⭕ / ko ➔ go ❌)</p>
+                  <p>・語尾の「ー」は1文字前を参照します。(例：rubi- ➔ bi)</p>
+                  <p className="text-rose-400 font-medium">※最後が「ん（n）」で終わった場合は即ゲームオーバー！</p>
+                </div>
               </div>
-              <p>・入力は「小文字のローマ字のみ」で行います</p>
-              <p>・最新の単語の「最後の赤字ローマ字」から繋げます</p>
-              <p>・複数の綴り（si/shi、xtu/ltuなど）すべてを許可</p>
-              <p>・濁音から清音はOK、逆はNG (例：go ➔ koara ⭕ / ko ➔ go ❌)</p>
-              <p>・語尾の「ー」は1文字前を参照します。(例：rubi- ➔ bi)</p>
-              <p className="text-rose-400/90 font-medium">※最後が「ん（n）」で終わった場合は即ゲームオーバー！</p>
             </div>
           </div>
         )}
